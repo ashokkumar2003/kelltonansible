@@ -1,0 +1,29 @@
+- name: Install list of packages
+  apt: name={{item}} state=installed
+  with_items:
+       - php56
+       - php56-bcmath
+       - php56-cli
+       - php56-common
+	   - php56-debuginfo
+	   - php56-dba
+	   - php56-devel
+	   - php56-embedded
+	   - php56-enchant
+	   - php56-gd
+	   - php56-intl
+	   - php56-ldap
+	   - php56-mbstring
+	   - php56-mysqlnd
+	   - php56-pdo
+	   - php56-process
+	   - php56-pspell
+	   - php56-recode
+	   - php56-snmp
+	   - php56-soap
+	   - php56-xml
+	   - php56-xmlrpc
+	   - php56-pecl-memcache
+	   - php56-pecl-memcached
+	   - php56-pecl-apc
+	   - php56-opcache

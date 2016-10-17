@@ -1,0 +1,76 @@
+- name: 1. Update the servers
+  yum: name=*  state=latest
+
+- name: 2. install Apache
+  yum: name={{item}} state=installed
+  with_items:
+      - httpd24
+      - httpd24-devel
+      - mod24_ssl
+
+- name: 3. Install list of packages
+  yum: name={{item}} state=installed
+  with_items:
+       - php56
+       - php56-bcmath
+       - php56-cli
+       - php56-common
+       - php56-dbg
+       - php56-dba
+       - php56-devel
+       - php56-embedded
+       - php56-enchant
+       - php56-gd
+       - php56-intl
+       - php56-ldap
+       - php56-mbstring
+       - php56-mysqlnd
+       - php56-pdo
+       - php56-process
+       - php56-pspell
+       - php56-recode
+       - php56-snmp
+       - php56-soap
+       - php56-xml
+       - php56-xmlrpc
+       - php56-pecl-memcache
+       - php56-pecl-memcached
+       - php56-pecl-apc
+       - php56-opcache
+ 
+- name: 4. start Apache
+  service: name=httpd state=running enabled=yes
+
+#- name: 5. install Hello World PHP script
+#  copy: src=index.php dest=/var/www/html/index.php mode=0664
+
+- name: 5. virtual conf fiel copy
+  template: src=virtual.conf dest=/var/www/html/kellcode
+
+- name: 6. install git package
+  yum: name=git state=installed
+
+- name: 7. Git clone code ka
+  git: repo=https://github.com/ashokkumar2003/kellcode.git
+       dest=/var/www/html/kellcode
+#       version=release-0.22
+
+- name: 8. security email update
+#  lineinfile: dest=/etc/httpd/conf/httpd.conf regexp="^ServerAdmin root@localhost" line="ServerAdmin linux@kelltontech.com" state=present
+  lineinfile: dest=/etc/httpd/conf/httpd.conf regexp="^ServerAdmin root@localhost" insertafter="^#ServerAdmin root@localhost" line="ServerAdmin linux@kelltontech.com"   state=present 
+#  notify:
+#     - restart httpd
+- name: 9. Add security paramiter inhttpd.conf
+  lineinfile: dest=/etc/httpd/conf/httpd.conf line="ServerTokens Prod"
+
+- name: 10. Add security paramiter inhttpd.conf
+  lineinfile: dest=/etc/httpd/conf/httpd.conf line="ServerSignature Off"
+
+- name: 11.  Expose php off in php.ini
+  lineinfile: dest=/etc/php.ini regexp="^expose_php = On" insertafter="^#expose_php = On" line="expose_php = Off"
+  lineinfile: dest=/etc/php.ini regexp="^upload_max_filesize = 2M" insertafter="^#upload_max_filesize = 2M" line="upload_max_filesize = 24M"
+  lineinfile: dest=/etc/php.ini regexp="^post_max_size = 8M" insertafter="^#post_max_size = 8M" line="post_max_size = 32M"
+
+#handlers:
+- name: 11. restart httpd
+  service: name=httpd state=restarted

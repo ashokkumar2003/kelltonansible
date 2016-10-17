@@ -1,0 +1,47 @@
+- name: Install the mysql packages in Redhat derivatives
+  yum: name={{ item }} state=installed
+  with_items:
+      - mysql56-server
+#      - MySQL-python27
+
+- name: Copy the my.cnf file
+  copy: src=my.cnf  dest=/etc/my.cnf 
+
+- name: Start the mysql services Redhat
+  service: name=mysqld  state=restarted enabled=yes
+
+
+
+- name: Set root user password
+  mysql_user: name=root
+              host=localhost
+              password=kell12345
+              check_implicit_admin=yes
+              login_user=root
+              login_password=kell12345
+              state=present
+
+- name: Create local my.cnf for root user
+  copy: src=my.cnf.j2 dest=~/.my.cnf owner=root mode=0600
+
+- name: Ensure Anonymous user(s) are not in the database
+  mysql_user: name='' host=localhost state=absent
+
+- name: remove the test database
+  mysql_db: db=test state=absent
+
+- name: Restart the MySQL service
+  service: name=mysqld state=restarted enabled=true
+
+- name: Create a database
+  mysql_db: name=kelltest
+           collation=utf8_general_ci
+            encoding=utf8
+            state=present
+
+
+- name: Create a database user
+  mysql_user: name=bob password=12345 priv=kelltest.*:ALL,GRANT state=present
+
+- copy: src=eu.sql dest=/tmp
+- mysql_db: name=kelltest state=import target=/tmp/eu.sql
